@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "984158775162",
+    "project_id": "three-things-todo",
+    "storage_bucket": "three-things-todo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984158775162:android:beaea7b8a21a24aaf518c3",
+        "android_client_info": {
+          "package_name": "com.example.threethings"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOSO7vQGRMmw6KSpzSEsXUFBi0RJEZKZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
