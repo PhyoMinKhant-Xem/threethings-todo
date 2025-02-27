@@ -12,6 +12,7 @@ Future<CustomResponse<Streak>> addStreak(User user, Streak newStreak) async {
       CustomResponse.fail<Streak>("Error Message Not Provided!");
 
   try {
+    user.streak++;
     user.streakList.add(newStreak);
     await updateUser(user);
 
