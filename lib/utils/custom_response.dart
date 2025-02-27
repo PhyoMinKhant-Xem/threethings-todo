@@ -10,17 +10,17 @@ class CustomResponse<T> {
         status: OperationStatus.success, data: d, message: m);
   }
 
-  static CustomResponse<T> fail<T>(T d, String? m) {
+  static CustomResponse<T> fail<T>(String? m) {
     return CustomResponse._(
         status: OperationStatus.fail,
-        data: d,
+        data: null,
         message: m ?? "Operation Failed!");
   }
 
-  static CustomResponse<T> notFound<T>(T d, String? m) {
+  static CustomResponse<T> notFound<T>(String? m) {
     return CustomResponse._(
         status: OperationStatus.notFound,
-        data: d,
+        data: null,
         message: m ?? "Data Not Found!");
   }
 }
