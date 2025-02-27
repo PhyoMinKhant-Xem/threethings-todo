@@ -9,7 +9,6 @@ class CalendarWithProgressBar extends StatefulWidget {
 }
 
 class _CalendarWithProgressBarState extends State<CalendarWithProgressBar> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -42,9 +41,7 @@ class _CalendarWithProgressBarState extends State<CalendarWithProgressBar> {
           _focusedDay = focusedDay;
         });
       },
-      onFormatChanged: (format) {
-        setState(() => _calendarFormat = format);
-      },
+      onFormatChanged: (format) {},
       onPageChanged: (focusedDay) {
         setState(() => _focusedDay = focusedDay);
       },
@@ -52,8 +49,8 @@ class _CalendarWithProgressBarState extends State<CalendarWithProgressBar> {
       headerStyle: HeaderStyle(
         formatButtonVisible: false, // Remove format change button
         titleCentered: false,
-        leftChevronVisible: false, // Remove left arrow
-        rightChevronVisible: false, // Remove right arrow
+        // leftChevronVisible: false,
+        // rightChevronVisible: false,
         titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
