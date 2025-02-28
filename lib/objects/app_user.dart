@@ -1,7 +1,7 @@
 import 'package:threethings/objects/streak.dart';
 import 'package:threethings/objects/todo.dart';
 
-class User {
+class AppUser {
   final String _uId;
   String name;
   String email;
@@ -13,7 +13,7 @@ class User {
 
   String get getId => _uId;
 
-  User(this._uId,
+  AppUser(this._uId,
       {required this.name,
       required this.email,
       this.profilePic = "",
@@ -26,7 +26,7 @@ class User {
         "Number of To Do can't be less than '3' or larger than '0'.");
   }
 
-  static Map<String, dynamic> toMap(User user) {
+  static Map<String, dynamic> toMap(AppUser user) {
     var userMap = Map<String, dynamic>();
     userMap['id'] = user.getId;
     userMap['name'] = user.name;
@@ -42,8 +42,8 @@ class User {
     return userMap;
   }
 
-  static User toObject(Map<String, dynamic> userMap) {
-    var user = new User(
+  static AppUser toObject(Map<String, dynamic> userMap) {
+    var user = new AppUser(
       userMap['id'],
       name: userMap['name'],
       email: userMap['email'],

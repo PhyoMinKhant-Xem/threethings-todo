@@ -10,7 +10,7 @@ Future<CustomResponse<AppUser>> createUser(String uId, AppUser newUser) async {
       CustomResponse.fail<AppUser>("Error Message Not Provided!");
 
   try {
-    final newUserRef = await userReference
+    await userReference
         .doc(uId)
         .set(AppUser.toMap(newUser))
         .then((_) => {
@@ -30,7 +30,7 @@ Future<CustomResponse<bool>> updateUser(AppUser user) async {
       CustomResponse.fail<bool>("Error Message Not Provided!");
 
   try {
-    final newUserRef = await userReference
+    await userReference
         .doc(user.getId)
         .set(AppUser.toMap(user))
         .then((_) => {

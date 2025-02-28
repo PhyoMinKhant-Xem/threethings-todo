@@ -23,10 +23,15 @@ class AuthResponse{
   static AuthResponse wrong(String m){
     return AuthResponse._(status: AuthStatus.wrongEmailOrPassword, message: m);
   }
+
+  static AuthResponse invalidEmail(String m){
+    return AuthResponse._(status: AuthStatus.invalidEmail, message: m);
+  }
 }
 
 enum AuthStatus{
   weakPassword,
+  invalidEmail,
   emailAlreadyInUse,
   wrongEmailOrPassword,
   success,

@@ -1,16 +1,21 @@
+import 'package:threethings/methods/database_methods/user_methods.dart';
 import 'package:threethings/objects/todo.dart';
-import 'package:threethings/objects/user.dart';
+import 'package:threethings/objects/app_user.dart';
 import 'package:threethings/utils/custom_response.dart';
 
-Future<CustomResponse<Todo>> createTodo(Todo newTodo, User user) async {
+Future<CustomResponse<Todo>> createTodo(Todo newTodo, AppUser user) async {
   CustomResponse<Todo> response =
-  CustomResponse.fail<Todo>("Error Message Not Provided!");
+      CustomResponse.fail<Todo>("Error Message Not Provided!");
 
   try {
     user.todoList.add(newTodo);
-    await updateUser(user);
+    final status = await updateUser(user);
 
-    response = CustomResponse.fail("Method Not Handled Here!");
+    if (status.status == OperationStatus.success) {
+      response = CustomResponse.success(newTodo, "New Todo Created!");
+    } else {
+      response = CustomResponse.fail("Todo Creation Failed");
+    }
   } catch (error) {
     response = CustomResponse.fail(error.toString());
   }
@@ -18,39 +23,48 @@ Future<CustomResponse<Todo>> createTodo(Todo newTodo, User user) async {
   return response;
 }
 
-Future<CustomResponse<Todo>> updateTodo(Todo updatedTodo, User user) async {
+Future<CustomResponse<Todo>> updateTodo(Todo updatedTodo, AppUser user) async {
   CustomResponse<Todo> response =
-  CustomResponse.fail<Todo>("Error Message Not Provided!");
+      CustomResponse.fail<Todo>("Error Message Not Provided!");
 
   try {
-    user.todoList.map((todo)=>{
-      if(todo.todoId == updatedTodo.todoId){
-        todo = updatedTodo
+    user.todoList.map((todo) => {
+          if (todo.todoId == updatedTodo.todoId) {todo = updatedTodo}
+        });
+    final status = await updateUser(user);
+
+    if (status.status == OperationStatus.success) {
+      response = CustomResponse.success(updatedTodo, "New Todo Updated!");
+    } else {
+      response = CustomResponse.fail("Todo Update Failed");
+    }
+  } catch (error) {
+    response = CustomResponse.fail(error.toString());
+  }
+
+  return response;
+}
+
+Future<CustomResponse<Todo>> deleteTodo(Todo todo, AppUser user) async {
+  CustomResponse<Todo> response =
+      CustomResponse.fail<Todo>("Error Message Not Provided!");
+
+  try {
+    bool removeStatus = user.todoList.remove(todo);
+    if (removeStatus) {
+      final status = await updateUser(user);
+
+      if (status.status == OperationStatus.success) {
+        response = CustomResponse.success(todo, "Todo Deleted!");
+      } else {
+        response = CustomResponse.fail("Todo Deletion Failed");
       }
-    });
-    await updateUser(user);
-
-    response = CustomResponse.fail("Method Not Handled Here!");
+    } else {
+      response = CustomResponse.notFound("Todo not Found!");
+    }
   } catch (error) {
     response = CustomResponse.fail(error.toString());
   }
 
   return response;
 }
-
-Future<CustomResponse<Todo>> deleteTodo(Todo todo, User user) async {
-  CustomResponse<Todo> response =
-  CustomResponse.fail<Todo>("Error Message Not Provided!");
-
-  try {
-    user.todoList.remove(todo);
-    await updateUser(user);
-
-    response = CustomResponse.fail("Method Not Handled Here!");
-  } catch (error) {
-    response = CustomResponse.fail(error.toString());
-  }
-
-  return response;
-}
-
