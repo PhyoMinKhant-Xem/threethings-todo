@@ -25,49 +25,19 @@ Future<CustomResponse<AppUser>> createUser(String uId, AppUser newUser) async {
   return response;
 }
 
-Future<CustomResponse<bool>> login(String email, String password) async {
+Future<CustomResponse<bool>> updateUser(AppUser user) async {
   CustomResponse<bool> response =
       CustomResponse.fail<bool>("Error Message Not Provided!");
 
   try {
-    //TODO: make login method here
-    response = CustomResponse.fail("Method Not Handled Here!");
-  } catch (error) {
-    response = CustomResponse.fail(error.toString());
-  }
-
-  return response;
-}
-
-Future<CustomResponse<bool>> updateUser(User user) async {
-  CustomResponse<bool> response =
-      CustomResponse.fail<bool>("Error Message Not Provided!");
-
-  try {
-    await userReference
-        .doc(user.getEmail)
-        .update(User.toMap(user))
-        .then((u) => {
-              //TODO: handle the appropriate value here
-              print(user)
-            });
-
-    response = CustomResponse.fail("Method Not Handled Here!");
-  } catch (error) {
-    response = CustomResponse.fail(error.toString());
-  }
-
-  return response;
-}
-
-Future<CustomResponse<User>> signOutUser(User newUser) async {
-  CustomResponse<User> response =
-      CustomResponse.fail<User>("Error Message Not Provided!");
-
-  try {
-    //TODO: handle sign out here
-
-    response = CustomResponse.fail("Method Not Handled Here!");
+    final newUserRef = await userReference
+        .doc(user.getId)
+        .set(AppUser.toMap(user))
+        .then((_) => {
+              response = CustomResponse.success(
+                  true, "User Information Update Success!")
+            })
+        .onError(throw Exception("Error Updating User!"));
   } catch (error) {
     response = CustomResponse.fail(error.toString());
   }
