@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:threethings/objects/database_methods/user_methods.dart';
 import 'package:threethings/objects/streak.dart';
 import 'package:threethings/objects/user.dart';
 import 'package:threethings/utils/custom_response.dart';
