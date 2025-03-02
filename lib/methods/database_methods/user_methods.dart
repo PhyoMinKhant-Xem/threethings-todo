@@ -10,14 +10,11 @@ Future<CustomResponse<AppUser>> createUser(String uId, AppUser newUser) async {
       CustomResponse.fail<AppUser>("Error Message Not Provided!");
 
   try {
-    await userReference
-        .doc(uId)
-        .set(AppUser.toMap(newUser))
-        .then((_) => {
-              response =
-                  CustomResponse.success(newUser, "User Creation Success!")
-            })
-        .onError(throw Exception("Error Creating User!"));
+    await userReference.doc(uId).set(AppUser.toMap(newUser)).then(
+          (_) => {
+            response = CustomResponse.success(newUser, "User Creation Success!")
+          },
+        );
   } catch (error) {
     response = CustomResponse.fail(error.toString());
   }

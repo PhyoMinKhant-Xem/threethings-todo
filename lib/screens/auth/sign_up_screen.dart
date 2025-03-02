@@ -33,7 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
     } else {
       if (password == confirmPassword) {
-        Auth _auth = new Auth();
+        Auth auth = new Auth();
         AppUser newUser = AppUser(
           "",
           name: _nameController.text,
@@ -41,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           streakList: [],
           todoList: [],
         );
-        AuthResponse response = await _auth.signUpUser(
+        AuthResponse response = await auth.signUpUser(
             _emailController.text, _passwordController.text, newUser);
 
         if (response.status == AuthStatus.success) {

@@ -21,9 +21,9 @@ class AppUser {
       this.streak = 0,
       required this.streakList,
       required this.todoList}) {
-    assert(streak < 0, "Streak can't less than 0.");
-    assert(numbersOfTodosOwn < 0 || numbersOfTodosOwn > 3,
-        "Number of To Do can't be less than '3' or larger than '0'.");
+    // assert(streak > 0, "Streak can't less than 0.");
+    // assert(numbersOfTodosOwn > 0 || numbersOfTodosOwn < 3,
+    //     "Number of To Do can't be less than '3' or larger than '0'.");
   }
 
   static Map<String, dynamic> toMap(AppUser user) {

@@ -39,21 +39,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool isSignedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        isSignedIn = true;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isSignedIn = false;
-
-    @override
-    void initState() {
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
-        if (user != null) {
-          isSignedIn = true;
-        }
-      });
-    }
-
-    ;
-
     return MaterialApp(
       home: SplashScreen(
         isSignIn: isSignedIn,
