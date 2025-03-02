@@ -5,14 +5,14 @@ import 'package:threethings/utils/auth_response.dart';
 import 'package:threethings/utils/custom_response.dart';
 
 class Auth {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<AuthResponse> signUpUser(
       String email, String password, AppUser user) async {
     AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
 
     try {
-      final credential = await auth.createUserWithEmailAndPassword(
+      final credential = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       final userId = credential.user?.uid;
       if (userId != null) {
@@ -50,7 +50,7 @@ class Auth {
     AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
 
     try {
-      final credential = await auth.signInWithEmailAndPassword(
+      final credential = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
 
       if (credential.user != null) {
@@ -64,6 +64,23 @@ class Auth {
             "Wrong Email or Password. Please Try Signing Up!");
       }
     }
+    return response;
+  }
+
+  Future<AuthResponse> signOutUser() async {
+    AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
+
+    try {
+      await _auth.signOut();
+
+      response = AuthResponse.success("User Sign out!");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == '') {
+        //TODO: DETERMINE error code with Android Studio here
+        response = AuthResponse.fail("An Error Occured!");
+      }
+    }
+
     return response;
   }
 }

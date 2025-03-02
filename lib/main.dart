@@ -50,10 +50,14 @@ class _MyAppState extends State<MyApp> {
           isSignedIn = true;
         }
       });
-    };
+    }
+
+    ;
 
     return MaterialApp(
-      home: isSignedIn ? SignInScreen() : HomeScreen(),
+      home: SplashScreen(
+        isSignIn: isSignedIn,
+      ),
     );
   }
 }
