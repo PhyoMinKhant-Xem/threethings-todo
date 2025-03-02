@@ -45,8 +45,7 @@ class Auth {
     return response;
   }
 
-  Future<AuthResponse> loginUser(
-      String email, String password, User user) async {
+  Future<AuthResponse> loginUser(String email, String password) async {
     AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
 
     try {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:threethings/layouts/main_layout.dart';
+import 'package:threethings/methods/auth_methods/auth.dart';
 import 'package:threethings/screens/auth/sign_up_screen.dart';
+import 'package:threethings/utils/auth_response.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -13,6 +15,29 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+
+  Future<void> handleLogin() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      const errorSnackBar =
+          SnackBar(content: Text("Please Fill all the fields!"));
+      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+    } else {
+      Auth auth = new Auth();
+      AuthResponse response = await auth.loginUser(email, password);
+
+      if (response.status == AuthStatus.success) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (builder) => MainLayout(),
+          ),
+        );
+      }
+      //TODO: handle response accrodingly
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +110,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {
-                        // TODO: Implement Forgot Password Functionality
-                      },
+                      onPressed: handleLogin,
                       child: const Text(
                         "Forgot Password?",
                         style: TextStyle(color: Colors.white, fontSize: 14),
