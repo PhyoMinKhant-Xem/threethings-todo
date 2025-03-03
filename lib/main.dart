@@ -7,6 +7,7 @@ import 'package:threethings/providers/theme_provider.dart';
 import 'package:threethings/screens/auth/sign_in_screen.dart';
 import 'package:threethings/screens/home_screen.dart';
 import 'package:threethings/screens/splash_screen.dart';
+import 'package:threethings/utils/user_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,8 +27,11 @@ Future<void> main() async {
     await Firebase.initializeApp();
   }
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider())
+      ],
       child: MyApp(),
     ),
   );

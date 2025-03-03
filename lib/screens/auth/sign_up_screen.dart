@@ -52,7 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           );
         }
-        //TODO: handle resopnse status accordingly
+        //TODO: handle response status accordingly
       } else {
         const errorSnackBar = SnackBar(
             content: Text("Password and Confirm Password are not the same!"));

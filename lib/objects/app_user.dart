@@ -48,7 +48,7 @@ class AppUser {
       name: userMap['name'],
       email: userMap['email'],
       profilePic: userMap['profilePic'],
-      numbersOfTodosOwn: userMap['numberOfTodosOwn'],
+      numbersOfTodosOwn: userMap['numbersOfTodosOwn'],
       streak: userMap['streak'],
       streakList: (userMap['streakList'] as List<dynamic>)
           .map((streakMap) => Streak.toObject(streakMap))

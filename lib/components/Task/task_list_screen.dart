@@ -1,51 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:threethings/methods/database_methods/streak_method.dart';
+import 'package:threethings/methods/database_methods/todo_method.dart';
+import 'package:threethings/objects/app_user.dart';
+import 'package:threethings/objects/streak.dart';
+import 'package:threethings/objects/todo.dart';
+import 'package:threethings/utils/custom_response.dart';
 import 'task_card.dart';
 
 class TaskListScreen extends StatefulWidget {
+  AppUser user;
   final bool showFAB; // Add a flag for FAB visibility
 
-  TaskListScreen({this.showFAB = true}); // Default to true
+  TaskListScreen({this.showFAB = true, required this.user}); // Default to true
 
   @override
   _TaskListScreenState createState() => _TaskListScreenState();
 }
 
 class _TaskListScreenState extends State<TaskListScreen> {
-  final List<Task> _tasks = [
-    Task(
-      title: 'Complete Flutter Project',
-      description: 'Finish the daily streak feature and task manager UI.',
-      isDone: false,
-    ),
-    Task(
-      title: 'Buy Groceries',
-      description: 'Milk, Eggs, Bread, and Vegetables.',
-      isDone: true,
-    ),
-  ];
+  DateTime today = DateTime.now();
+  List<Todo> _todos = [];
+  List<Streak> _streaks = [];
+  Streak? _todayStreak;
 
-  void _toggleTaskStatus(int index) {
-    setState(() {
-      _tasks[index].isDone = !_tasks[index].isDone;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _todos = widget.user.todoList;
+    _streaks = widget.user.streakList;
+    _todayStreak =   _streaks.firstWhere(
+          (streak) =>
+      streak.date?.year == today.year &&
+          streak.date?.month == today.month &&
+          streak.date?.day == today.day,
+      orElse: () => Streak(
+        id: (_streaks.length + 1).toString(),
+        todoIds: [],
+        userEmail: widget.user.email,
+        numberOfTodosUserHasToday: widget.user.todoList.length,
+        date: new DateTime.now(),
+      ),
+    );
+    print(widget.user.todoList);
+    print(widget.user.streakList);
   }
 
-  void _deleteTask(int index) {
-    setState(() {
-      _tasks.removeAt(index);
-    });
+  void _toggleTaskStatus(int todoId) async {
+    final result = await tweakStreak(widget.user, todoId);
+    if (result.status == OperationStatus.success) {
+      const statusSnackBar = SnackBar(content: Text("Ok!"));
+      ScaffoldMessenger.of(context).showSnackBar(statusSnackBar);
+    }
+    //TODO: handle other responses as well.
+    setState(() {});
   }
 
-  void _editTask(int index) {
+  void _deleteTask(int todoId) async {
+    final result = await deleteTodo(todoId, widget.user);
+    if (result.status == OperationStatus.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${result.message}")),
+      );
+    }
+    // TODO: handle other responses as well.
+  }
+
+  void _editTask(int taskId) {
+    Todo? todo = _todos.firstWhere(
+      (todo) => todo.todoId == taskId,
+    );
+
     _showTaskDialog(
       title: 'Edit Task',
-      initialTitle: _tasks[index].title,
-      initialDescription: _tasks[index].description,
-      onSave: (newTitle, newDescription) {
-        setState(() {
-          _tasks[index].title = newTitle;
-          _tasks[index].description = newDescription;
-        });
+      initialTitle: todo.title,
+      initialDescription: todo.description,
+      onSave: (newTitle, newDescription) async {
+        todo.title = newTitle;
+        todo.description = newDescription;
+        final result = await updateTodo(todo, widget.user);
+        if (result.status == OperationStatus.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("${result.message}")),
+          );
+        }
+        // TODO: handle other responses as well.
       },
     );
   }
@@ -53,11 +91,26 @@ class _TaskListScreenState extends State<TaskListScreen> {
   void _addTask() {
     _showTaskDialog(
       title: 'Add New Task',
-      onSave: (newTitle, newDescription) {
-        setState(() {
-          _tasks.add(Task(
-              title: newTitle, description: newDescription, isDone: false));
-        });
+      onSave: (newTitle, newDescription) async {
+        print(newTitle + newDescription);
+        if (widget.user.todoList.length < 3) {
+          final newTodo = Todo(
+              id: _todos.length + 1,
+              title: newTitle,
+              description: newDescription);
+
+          final result = await createTodo(newTodo, widget.user);
+          if (result.status == OperationStatus.success) {
+            final successSnackBar =
+                SnackBar(content: Text("${result.message}"));
+            ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
+          }
+          //TODO: handle other responses as well.
+        } else {
+          const errorSnackBar =
+              SnackBar(content: Text("Hey! We do only 3 things remember?"));
+          ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+        }
       },
     );
   }
@@ -137,10 +190,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: _tasks.length,
+            itemCount: _todos.length,
             itemBuilder: (context, index) {
               return TaskCard(
-                task: _tasks[index],
+                streak: _todayStreak,
+                task: _todos[index],
                 onToggle: () => _toggleTaskStatus(index),
                 onDelete: () => _deleteTask(index),
                 onEdit: () => _editTask(index),
@@ -159,16 +213,4 @@ class _TaskListScreenState extends State<TaskListScreen> {
       ],
     );
   }
-}
-
-class Task {
-  String title;
-  String description;
-  bool isDone;
-
-  Task({
-    required this.title,
-    required this.description,
-    this.isDone = false,
-  });
 }

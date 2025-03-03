@@ -2,15 +2,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:threethings/objects/app_user.dart';
 import 'package:threethings/utils/custom_response.dart';
 
-FirebaseFirestore firebaseFireStore = FirebaseFirestore.instance;
-CollectionReference userReference = firebaseFireStore.collection("users");
+FirebaseFirestore _firebaseFireStore = FirebaseFirestore.instance;
+CollectionReference _userReference = _firebaseFireStore.collection("users");
+
+Stream<AppUser> getUserDetail(String uId) {
+  return _userReference.doc(uId).snapshots().map((snapshot){
+    return AppUser.toObject(snapshot.data() as Map<String, dynamic>);
+  });
+}
+
 
 Future<CustomResponse<AppUser>> createUser(String uId, AppUser newUser) async {
   CustomResponse<AppUser> response =
       CustomResponse.fail<AppUser>("Error Message Not Provided!");
 
   try {
-    await userReference.doc(uId).set(AppUser.toMap(newUser)).then(
+    await _userReference.doc(uId).set(AppUser.toMap(newUser)).then(
           (_) => {
             response = CustomResponse.success(newUser, "User Creation Success!")
           },
@@ -27,7 +34,7 @@ Future<CustomResponse<bool>> updateUser(AppUser user) async {
       CustomResponse.fail<bool>("Error Message Not Provided!");
 
   try {
-    await userReference
+    await _userReference
         .doc(user.getId)
         .set(AppUser.toMap(user))
         .then((_) => {

@@ -1,7 +1,7 @@
 class Streak {
   late String _id;
   DateTime? date;
-  List<String> todoIds;
+  List<int> todoIds;
   String userEmail;
   int numberOfTodosUserHasToday;
 
@@ -14,7 +14,6 @@ class Streak {
       required this.userEmail,
       required this.numberOfTodosUserHasToday}) {
     date ??= DateTime.now();
-    assert(userEmail.length == 0, "User Email can't be empty!");
   }
 
   static Map<String, dynamic> toMap(Streak s) {
@@ -31,6 +30,7 @@ class Streak {
   static Streak toObject(Map<String, dynamic> streakMap) {
     var streak = new Streak(
         id: streakMap['id'],
+        date: DateTime.fromMicrosecondsSinceEpoch(streakMap['date']),
         todoIds: streakMap['todoIds'],
         userEmail: streakMap['userEmail'],
         numberOfTodosUserHasToday: streakMap['numberOfTodosUserHasToday']);

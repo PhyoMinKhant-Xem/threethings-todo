@@ -110,7 +110,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: handleLogin,
+                      onPressed: () {},
                       child: const Text(
                         "Forgot Password?",
                         style: TextStyle(color: Colors.white, fontSize: 14),
@@ -121,13 +121,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   /// **Sign In Button**
                   const SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => MainLayout()),
-                        (route) => false, // Remove all previous routes
-                      );
-                    },
+                    onPressed: handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,

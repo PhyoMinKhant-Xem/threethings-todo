@@ -45,22 +45,18 @@ Future<CustomResponse<Todo>> updateTodo(Todo updatedTodo, AppUser user) async {
   return response;
 }
 
-Future<CustomResponse<Todo>> deleteTodo(Todo todo, AppUser user) async {
-  CustomResponse<Todo> response =
-      CustomResponse.fail<Todo>("Error Message Not Provided!");
+Future<CustomResponse<bool>> deleteTodo(int todoId, AppUser user) async {
+  CustomResponse<bool> response =
+      CustomResponse.fail<bool>("Error Message Not Provided!");
 
   try {
-    bool removeStatus = user.todoList.remove(todo);
-    if (removeStatus) {
-      final status = await updateUser(user);
+    user.todoList.removeWhere((todo) => todo.todoId == todoId);
+    final status = await updateUser(user);
 
-      if (status.status == OperationStatus.success) {
-        response = CustomResponse.success(todo, "Todo Deleted!");
-      } else {
-        response = CustomResponse.fail("Todo Deletion Failed");
-      }
+    if (status.status == OperationStatus.success) {
+      response = CustomResponse.success(true, "Todo Deleted!");
     } else {
-      response = CustomResponse.notFound("Todo not Found!");
+      response = CustomResponse.fail("Todo Deletion Failed");
     }
   } catch (error) {
     response = CustomResponse.fail(error.toString());
