@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:threethings/providers/theme_provider.dart';
-import 'package:threethings/screens/auth/sign_in_screen.dart';
-import 'package:threethings/screens/home_screen.dart';
 import 'package:threethings/screens/splash_screen.dart';
 import 'package:threethings/utils/user_provider.dart';
 
@@ -27,40 +25,56 @@ Future<void> main() async {
     await Firebase.initializeApp();
   }
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
-        ChangeNotifierProvider(create: (context) => UserProvider())
-      ],
-      child: MyApp(),
-    ),
+    MyApp()
   );
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  bool isSignedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user != null) {
-        isSignedIn = true;
-      }
-    });
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: SplashScreen(
-        isSignIn: isSignedIn,
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => UserProviders(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ThemeProvider(),
+          child: MyApp(),
+        ),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            themeMode: themeProvider.themeMode,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            home: StreamBuilder(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.active) {
+                    if (snapshot.hasData) {
+                      return SplashScreen(isSignIn: true);
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('${snapshot.error}'),
+                      );
+                    }
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                      ),
+                    );
+                  }
+
+                  return SplashScreen(isSignIn: false);
+                }),
+          );
+        },
+      )
     );
   }
 }

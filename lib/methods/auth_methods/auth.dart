@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:threethings/methods/database_methods/user_methods.dart';
 import 'package:threethings/objects/app_user.dart';
@@ -6,6 +7,7 @@ import 'package:threethings/utils/custom_response.dart';
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   Future<AuthResponse> signUpUser(
       String email, String password, AppUser user) async {
@@ -81,5 +83,14 @@ class Auth {
     }
 
     return response;
+  }
+
+  Future<AppUser> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot currentUserSnap =
+    await _firebaseFirestore.collection('users').doc(currentUser!.uid).get();
+
+    return AppUser.fromSnap(currentUserSnap);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:threethings/objects/streak.dart';
 import 'package:threethings/objects/todo.dart';
 
@@ -59,5 +60,11 @@ class AppUser {
     );
 
     return user;
+  }
+
+  static AppUser fromSnap(DocumentSnapshot snap) {
+    var snapshot = snap.data() as Map<String, dynamic>;
+
+    return toObject(snapshot);
   }
 }

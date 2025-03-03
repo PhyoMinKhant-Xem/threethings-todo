@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:threethings/methods/database_methods/user_methods.dart';
+import 'package:threethings/methods/auth_methods/auth.dart';
 import 'package:threethings/objects/app_user.dart';
 
-class UserProvider with ChangeNotifier {
+class UserProviders with ChangeNotifier {
   AppUser? _user;
-  Stream<AppUser>? _userStream;
+  final Auth _authMethods = Auth();
 
-  AppUser? get getUser => _user;
+  AppUser? get getUser => _user; // No force unwrapping (!)
 
-  void fetchUser(String id) {
-    _userStream = getUserDetail(id);
-
-    _userStream!.listen((userData) {
-      _user = userData;
+  Future<void> refreshUser() async {
+    try {
+      AppUser user = await _authMethods.getUserDetails();
+      _user = user;
       notifyListeners();
-    }, onError: (error) {
-      print("Error fetching user: $error");
-    });
+    } catch (e) {
+      print("Error fetching user: $e");
+    }
   }
 }
