@@ -18,11 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(stream: getUserDetail(_id), builder: (context, snapshot){
-      if(snapshot.connectionState == ConnectionState.waiting){
-        return Center(child: CircularProgressIndicator(),);
-      }else{
-        AppUser? user = snapshot.data;
+    return StreamBuilder<AppUser?>(
+      stream: getUserDetail(_id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data == null) {
+          print("DEBUG: No user data received!");
+          return Center(child: Text("User not found!"));
+        }
+
+        AppUser user = snapshot.data!;
+        print("DEBUG: User data updated -> ${user.todoList.length} tasks");
+
         return Scaffold(
           body: Padding(
             padding: EdgeInsets.all(16.0),
@@ -30,21 +40,18 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  // Adjust based on your design
                   child: CalendarWeekWithProgressBar(),
                 ),
                 SizedBox(height: 20),
                 Expanded(
-                  // Ensures TaskListScreen takes available space
-                  child: TaskListScreen(
-                    user: user!,
-                  ),
+                  child: TaskListScreen(user: user), // Pass updated user
                 ),
               ],
             ),
           ),
         );
-      }
-    });
+      },
+    );
+
   }
 }

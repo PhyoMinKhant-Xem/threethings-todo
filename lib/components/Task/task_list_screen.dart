@@ -7,115 +7,78 @@ import 'package:threethings/objects/todo.dart';
 import 'package:threethings/utils/custom_response.dart';
 import 'task_card.dart';
 
-class TaskListScreen extends StatefulWidget {
-  AppUser user;
-  final bool showFAB; // Add a flag for FAB visibility
+class TaskListScreen extends StatelessWidget {
+  final AppUser user;
+  final bool showFAB;
 
-  TaskListScreen({this.showFAB = true, required this.user}); // Default to true
+  TaskListScreen({this.showFAB = true, required this.user});
 
-  @override
-  _TaskListScreenState createState() => _TaskListScreenState();
-}
-
-class _TaskListScreenState extends State<TaskListScreen> {
-  DateTime today = DateTime.now();
-  List<Todo> _todos = [];
-  List<Streak> _streaks = [];
-  Streak? _todayStreak;
-
-  @override
-  void initState() {
-    super.initState();
-    _todos = widget.user.todoList;
-    _streaks = widget.user.streakList;
-    _todayStreak =   _streaks.firstWhere(
-          (streak) =>
-      streak.date?.year == today.year &&
-          streak.date?.month == today.month &&
-          streak.date?.day == today.day,
-      orElse: () => Streak(
-        id: (_streaks.length + 1).toString(),
-        todoIds: [],
-        userEmail: widget.user.email,
-        numberOfTodosUserHasToday: widget.user.todoList.length,
-        date: new DateTime.now(),
-      ),
-    );
-    print(widget.user.todoList);
-    print(widget.user.streakList);
-  }
-
-  void _toggleTaskStatus(int todoId) async {
-    final result = await tweakStreak(widget.user, todoId);
+  void _toggleTaskStatus(BuildContext context, int todoId) async {
+    final result = await tweakStreak(user, todoId);
     if (result.status == OperationStatus.success) {
-      const statusSnackBar = SnackBar(content: Text("Ok!"));
-      ScaffoldMessenger.of(context).showSnackBar(statusSnackBar);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Ok!")));
     }
-    //TODO: handle other responses as well.
-    setState(() {});
   }
 
-  void _deleteTask(int todoId) async {
-    final result = await deleteTodo(todoId, widget.user);
+  void _deleteTask(BuildContext context, int todoId) async {
+    final result = await deleteTodo(todoId, user);
     if (result.status == OperationStatus.success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("${result.message}")),
       );
     }
-    // TODO: handle other responses as well.
   }
 
-  void _editTask(int taskId) {
-    Todo? todo = _todos.firstWhere(
-      (todo) => todo.todoId == taskId,
-    );
+  void _editTask(BuildContext context, int taskId) {
+    Todo? todo = user.todoList.firstWhere((todo) => todo.todoId == taskId);
 
     _showTaskDialog(
+      context: context,
       title: 'Edit Task',
       initialTitle: todo.title,
       initialDescription: todo.description,
       onSave: (newTitle, newDescription) async {
         todo.title = newTitle;
         todo.description = newDescription;
-        final result = await updateTodo(todo, widget.user);
+        final result = await updateTodo(todo, user);
         if (result.status == OperationStatus.success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("${result.message}")),
           );
         }
-        // TODO: handle other responses as well.
       },
     );
   }
 
-  void _addTask() {
+  void _addTask(BuildContext context) {
     _showTaskDialog(
+      context: context,
       title: 'Add New Task',
       onSave: (newTitle, newDescription) async {
-        print(newTitle + newDescription);
-        if (widget.user.todoList.length < 3) {
+        if (user.todoList.length < 3) {
           final newTodo = Todo(
-              id: _todos.length + 1,
+              id: user.todoList.length + 1,
               title: newTitle,
               description: newDescription);
 
-          final result = await createTodo(newTodo, widget.user);
+          final result = await createTodo(newTodo, user);
           if (result.status == OperationStatus.success) {
-            final successSnackBar =
-                SnackBar(content: Text("${result.message}"));
-            ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${result.message}")),
+            );
           }
-          //TODO: handle other responses as well.
         } else {
-          const errorSnackBar =
-              SnackBar(content: Text("Hey! We do only 3 things remember?"));
-          ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Hey! We do only 3 things, remember?")),
+          );
         }
       },
     );
   }
 
   void _showTaskDialog({
+    required BuildContext context,
     required String title,
     String initialTitle = '',
     String initialDescription = '',
@@ -186,27 +149,31 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "DEBUG: Rebuilding TaskListScreen with ${user.todoList.length} tasks");
+
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: _todos.length,
+            itemCount: user.todoList.length,
             itemBuilder: (context, index) {
               return TaskCard(
-                streak: _todayStreak,
-                task: _todos[index],
-                onToggle: () => _toggleTaskStatus(index),
-                onDelete: () => _deleteTask(index),
-                onEdit: () => _editTask(index),
+                streak: user.streakList.isNotEmpty ? user.streakList[0] : null,
+                task: user.todoList[index],
+                onToggle: () =>
+                    _toggleTaskStatus(context, user.todoList[index].todoId),
+                onDelete: () =>
+                    _deleteTask(context, user.todoList[index].todoId),
+                onEdit: () => _editTask(context, user.todoList[index].todoId),
               );
             },
           ),
         ),
-        if (widget.showFAB) ...[
-          // Show FAB only when showFAB is true
+        if (showFAB) ...[
           SizedBox(height: 10),
           FloatingActionButton(
-            onPressed: _addTask,
+            onPressed: () => _addTask(context),
             child: Icon(Icons.add),
           ),
         ],

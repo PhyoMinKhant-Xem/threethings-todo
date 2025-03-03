@@ -6,8 +6,16 @@ FirebaseFirestore _firebaseFireStore = FirebaseFirestore.instance;
 CollectionReference _userReference = _firebaseFireStore.collection("users");
 
 Stream<AppUser> getUserDetail(String uId) {
-  return _userReference.doc(uId).snapshots().map((snapshot){
-    return AppUser.toObject(snapshot.data() as Map<String, dynamic>);
+  return _userReference.doc(uId).snapshots().map((snapshot) {
+    if (!snapshot.exists || snapshot.data() == null) {
+      print("DEBUG: No user data found for ID: $uId");
+      throw Exception("User not found!");
+    }
+
+    final userData = snapshot.data() as Map<String, dynamic>;
+    print("DEBUG: Firestore data updated -> ${userData}");
+
+    return AppUser.toObject(userData);
   });
 }
 
