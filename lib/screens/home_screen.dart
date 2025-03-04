@@ -6,7 +6,6 @@ import 'package:threethings/methods/database_methods/user_methods.dart';
 import 'package:threethings/objects/app_user.dart';
 
 class HomeScreen extends StatefulWidget {
-
   HomeScreen({super.key});
 
   @override
@@ -40,7 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  child: CalendarWeekWithProgressBar(),
+                  child: CalendarWeekWithProgressBar(
+                    user: user,
+                  ),
                 ),
                 SizedBox(height: 20),
                 Expanded(
@@ -52,6 +53,5 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-
   }
 }

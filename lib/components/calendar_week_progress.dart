@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:threethings/objects/app_user.dart';
+import 'package:threethings/objects/streak.dart';
 
 class CalendarWeekWithProgressBar extends StatefulWidget {
+  AppUser user;
+
+  CalendarWeekWithProgressBar({required this.user});
   @override
   _CalendarWeekWithProgressBarState createState() =>
       _CalendarWeekWithProgressBarState();
@@ -20,8 +25,15 @@ class _CalendarWeekWithProgressBarState
   };
 
   double _getProgressForDate(DateTime date) {
-    return _progressMap[DateTime.utc(date.year, date.month, date.day)] ?? 0.0;
+    Streak? streak = widget.user.streakList.firstWhere(
+          (s) => s.date!.year == date.year && s.date!.month == date.month && s.date!.day == date.day,
+      orElse: () => Streak(todoIds: [], numberOfTodosUserHasToday: widget.user.todoList.length, id: '', userEmail: widget.user.email),
+    );
+
+    if (streak.numberOfTodosUserHasToday == 0) return 0.0;
+    return streak.todoIds.length / streak.numberOfTodosUserHasToday;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +63,8 @@ class _CalendarWeekWithProgressBarState
         headerStyle: HeaderStyle(
           formatButtonVisible: false, // Remove format change button
           titleCentered: false,
-          leftChevronVisible: false, // Remove left arrow
-          rightChevronVisible: false, // Remove right arrow
+          leftChevronVisible: true, // Remove left arrow
+          rightChevronVisible: true, // Remove right arrow
           titleTextStyle: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
