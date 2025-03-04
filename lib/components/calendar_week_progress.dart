@@ -18,12 +18,6 @@ class _CalendarWeekWithProgressBarState
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final Map<DateTime, double> _progressMap = {
-    DateTime.utc(2025, 2, 16): 0.3,
-    DateTime.utc(2025, 2, 17): 0.7,
-    DateTime.utc(2025, 2, 18): 1.0,
-  };
-
   double _getProgressForDate(DateTime date) {
     Streak? streak = widget.user.streakList.firstWhere(
           (s) => s.date!.year == date.year && s.date!.month == date.month && s.date!.day == date.day,

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:threethings/objects/app_user.dart';
+import 'package:threethings/objects/streak.dart';
 
 class CalendarWithProgressBar extends StatefulWidget {
+  AppUser user;
+
+  CalendarWithProgressBar({required this.user});
+
   @override
   _CalendarWithProgressBarState createState() =>
       _CalendarWithProgressBarState();
@@ -11,14 +17,29 @@ class CalendarWithProgressBar extends StatefulWidget {
 class _CalendarWithProgressBarState extends State<CalendarWithProgressBar> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  late Map<DateTime, double> _progressMap;
 
-  final Map<DateTime, double> _progressMap = {
-    DateTime.utc(2025, 1, 1): 0.3,
-    DateTime.utc(2025, 1, 5): 0.7,
-    DateTime.utc(2025, 1, 10): 1.0,
-    DateTime.utc(2025, 1, 15): 0.2,
-    DateTime.utc(2025, 1, 16): 0.5,
-  };
+  @override
+  void initState() {
+    super.initState();
+    _progressMap = _generateProgressMap(widget.user.streakList);
+  }
+
+  Map<DateTime, double> _generateProgressMap(List<Streak> streakList) {
+    Map<DateTime, double> progressMap = {};
+
+    for (Streak streak in streakList) {
+      if (streak.date != null && streak.numberOfTodosUserHasToday > 0) {
+        double progress =
+            streak.todoIds.length / streak.numberOfTodosUserHasToday;
+        progressMap[DateTime.utc(
+                streak.date!.year, streak.date!.month, streak.date!.day)] =
+            progress;
+      }
+    }
+
+    return progressMap;
+  }
 
   double _getProgressForDate(DateTime date) {
     return _progressMap[DateTime.utc(date.year, date.month, date.day)] ?? 0.0;
@@ -32,7 +53,8 @@ class _CalendarWithProgressBarState extends State<CalendarWithProgressBar> {
       firstDay: DateTime.utc(2010, 10, 16),
       lastDay: DateTime.utc(2030, 3, 14),
       focusedDay: _focusedDay,
-      calendarFormat: CalendarFormat.month, // Force week view
+      calendarFormat: CalendarFormat.month,
+      // Force week view
       availableCalendarFormats: const {CalendarFormat.month: 'Month'},
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
       onDaySelected: (selectedDay, focusedDay) {
