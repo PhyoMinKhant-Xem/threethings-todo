@@ -22,6 +22,7 @@ class Todo {
     var todo = new Todo(
       id: todoMap['id'],
       title: todoMap['title'],
+      description: todoMap['description']
     );
 
     return todo;

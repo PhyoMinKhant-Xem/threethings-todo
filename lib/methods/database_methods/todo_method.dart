@@ -9,6 +9,7 @@ Future<CustomResponse<Todo>> createTodo(Todo newTodo, AppUser user) async {
 
   try {
     user.todoList.add(newTodo);
+    user.numbersOfTodosOwn++;
     final status = await updateUser(user);
 
     if (status.status == OperationStatus.success) {
@@ -51,6 +52,7 @@ Future<CustomResponse<bool>> deleteTodo(int todoId, AppUser user) async {
 
   try {
     user.todoList.removeWhere((todo) => todo.todoId == todoId);
+    user.numbersOfTodosOwn--;
     final status = await updateUser(user);
 
     if (status.status == OperationStatus.success) {

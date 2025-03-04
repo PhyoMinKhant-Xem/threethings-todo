@@ -57,8 +57,13 @@ class TaskListScreen extends StatelessWidget {
       title: 'Add New Task',
       onSave: (newTitle, newDescription) async {
         if (user.todoList.length < 3) {
+          // Generate a new unique ID based on the current max ID
+          int newId = user.todoList.isEmpty
+              ? 1
+              : user.todoList.map((todo) => todo.todoId).reduce((a, b) => a > b ? a : b) + 1;
+
           final newTodo = Todo(
-              id: user.todoList.length + 1,
+              id: newId,
               title: newTitle,
               description: newDescription);
 
@@ -76,6 +81,7 @@ class TaskListScreen extends StatelessWidget {
       },
     );
   }
+
 
   void _showTaskDialog({
     required BuildContext context,

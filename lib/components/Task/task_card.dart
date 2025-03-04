@@ -53,7 +53,7 @@ class TaskCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    task.description,
+                    task.description.isNotEmpty ? task.description : 'No description available',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
