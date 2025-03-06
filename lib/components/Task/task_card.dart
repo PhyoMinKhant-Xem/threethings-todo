@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'task_list_screen.dart'; // Import Task model
+import 'package:threethings/objects/streak.dart';
+import 'package:threethings/objects/todo.dart';
 
 class TaskCard extends StatelessWidget {
-  final Task task;
+  final Todo task;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final Streak? streak;
 
   const TaskCard({
     Key? key,
@@ -13,6 +15,7 @@ class TaskCard extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     required this.onEdit,
+    this.streak
   }) : super(key: key);
 
   @override
@@ -27,7 +30,7 @@ class TaskCard extends StatelessWidget {
           children: [
             // Checkbox
             Checkbox(
-              value: task.isDone,
+              value: streak != null ? streak!.todoIds.contains(task.todoId) : false,
               onChanged: (value) => onToggle(),
               activeColor: Colors.blue,
             ),
@@ -43,18 +46,18 @@ class TaskCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      decoration: task.isDone
+                      decoration: (streak != null ? streak!.todoIds.contains(task.todoId) : false)
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
                     ),
                   ),
                   SizedBox(height: 4),
                   Text(
-                    task.description,
+                    task.description.isNotEmpty ? task.description : 'No description available',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
-                      decoration: task.isDone
+                      decoration: (streak != null ? streak!.todoIds.contains(task.todoId) : false)
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
                     ),

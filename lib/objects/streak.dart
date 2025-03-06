@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Streak {
   late String _id;
   DateTime? date;
-  List<String> todoIds;
+  List<int> todoIds;
   String userEmail;
   int numberOfTodosUserHasToday;
 
@@ -13,8 +15,8 @@ class Streak {
       required this.todoIds,
       required this.userEmail,
       required this.numberOfTodosUserHasToday}) {
+    _id = id;
     date ??= DateTime.now();
-    assert(userEmail.length == 0, "User Email can't be empty!");
   }
 
   static Map<String, dynamic> toMap(Streak s) {
@@ -29,12 +31,27 @@ class Streak {
   }
 
   static Streak toObject(Map<String, dynamic> streakMap) {
-    var streak = new Streak(
-        id: streakMap['id'],
-        todoIds: streakMap['todoIds'],
-        userEmail: streakMap['userEmail'],
-        numberOfTodosUserHasToday: streakMap['numberOfTodosUserHasToday']);
-
-    return streak;
+    return Streak(
+      id: streakMap['id'],
+      date: _parseDate(streakMap['date']),
+      todoIds: List<int>.from(streakMap['todoIds']),
+      userEmail: streakMap['userEmail'],
+      numberOfTodosUserHasToday: streakMap['numberOfTodosUserHasToday'],
+    );
   }
+
+// ✅ Helper function to correctly parse date field
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) {
+      return value.toDate();
+    } else if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    } else if (value is String) {
+      return DateTime.tryParse(value);
+    } else {
+      throw Exception("Unexpected date type: ${value.runtimeType}");
+    }
+  }
+
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:threethings/objects/streak.dart';
 import 'package:threethings/objects/todo.dart';
 
@@ -10,21 +11,19 @@ class AppUser {
   int streak;
   List<Streak> streakList = [];
   List<Todo> todoList = [];
+  DateTime? lastStreakDay;
 
   String get getId => _uId;
 
   AppUser(this._uId,
       {required this.name,
-      required this.email,
-      this.profilePic = "",
-      this.numbersOfTodosOwn = 0,
-      this.streak = 0,
-      required this.streakList,
-      required this.todoList}) {
-    assert(streak < 0, "Streak can't less than 0.");
-    assert(numbersOfTodosOwn < 0 || numbersOfTodosOwn > 3,
-        "Number of To Do can't be less than '3' or larger than '0'.");
-  }
+        required this.email,
+        this.profilePic = "",
+        this.numbersOfTodosOwn = 0,
+        this.streak = 0,
+        required this.streakList,
+        required this.todoList,
+        this.lastStreakDay});
 
   static Map<String, dynamic> toMap(AppUser user) {
     var userMap = Map<String, dynamic>();
@@ -39,25 +38,58 @@ class AppUser {
     userMap['todoList'] =
         user.todoList.map((todo) => Todo.toMap(todo)).toList();
 
+    if (user.lastStreakDay != null) {
+      userMap['lastStreakDay'] = user.lastStreakDay;
+    }
+
     return userMap;
   }
 
   static AppUser toObject(Map<String, dynamic> userMap) {
-    var user = new AppUser(
+    return AppUser(
       userMap['id'],
       name: userMap['name'],
       email: userMap['email'],
       profilePic: userMap['profilePic'],
-      numbersOfTodosOwn: userMap['numberOfTodosOwn'],
+      numbersOfTodosOwn: userMap['numbersOfTodosOwn'],
       streak: userMap['streak'],
       streakList: (userMap['streakList'] as List<dynamic>)
           .map((streakMap) => Streak.toObject(streakMap))
           .toList(),
       todoList: (userMap['todoList'] as List<dynamic>)
-          .map((streakMap) => Todo.toObject(streakMap))
+          .map((todoMap) => Todo.toObject(todoMap))
           .toList(),
+      lastStreakDay: userMap['lastStreakDay'] != null
+          ? _parseLastStreakDay(userMap['lastStreakDay'])
+          : null,
     );
+  }
 
-    return user;
+  static DateTime _parseLastStreakDay(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    } else if (value is String) {
+      return DateTime.parse(value);
+    } else if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    } else {
+      throw Exception("Unexpected type for lastStreakDay: ${value.runtimeType}");
+    }
+  }
+
+
+  static AppUser fromSnap(DocumentSnapshot snap) {
+    var snapshot = snap.data() as Map<String, dynamic>;
+
+    return toObject(snapshot);
+  }
+
+  bool wasStreakYesterday() {
+    if (lastStreakDay == null) return false;
+
+    final yesterday = DateTime.now().subtract(Duration(days: 1));
+    return lastStreakDay!.year == yesterday.year &&
+        lastStreakDay!.month == yesterday.month &&
+        lastStreakDay!.day == yesterday.day;
   }
 }

@@ -1,68 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:threethings/methods/database_methods/streak_method.dart';
+import 'package:threethings/methods/database_methods/todo_method.dart';
+import 'package:threethings/objects/app_user.dart';
+import 'package:threethings/objects/streak.dart';
+import 'package:threethings/objects/todo.dart';
+import 'package:threethings/utils/custom_response.dart';
 import 'task_card.dart';
 
-class TaskListScreen extends StatefulWidget {
-  final bool showFAB; // Add a flag for FAB visibility
+class TaskListScreen extends StatelessWidget {
+  final AppUser user;
+  final bool showFAB;
 
-  TaskListScreen({this.showFAB = true}); // Default to true
+  TaskListScreen({this.showFAB = true, required this.user});
 
-  @override
-  _TaskListScreenState createState() => _TaskListScreenState();
-}
-
-class _TaskListScreenState extends State<TaskListScreen> {
-  final List<Task> _tasks = [
-    Task(
-      title: 'Complete Flutter Project',
-      description: 'Finish the daily streak feature and task manager UI.',
-      isDone: false,
-    ),
-    Task(
-      title: 'Buy Groceries',
-      description: 'Milk, Eggs, Bread, and Vegetables.',
-      isDone: true,
-    ),
-  ];
-
-  void _toggleTaskStatus(int index) {
-    setState(() {
-      _tasks[index].isDone = !_tasks[index].isDone;
-    });
+  void _toggleTaskStatus(BuildContext context, int todoId) async {
+    final result = await tweakStreak(user, todoId);
+    if (result.status == OperationStatus.success) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Ok!")));
+    }
   }
 
-  void _deleteTask(int index) {
-    setState(() {
-      _tasks.removeAt(index);
-    });
+  void _deleteTask(BuildContext context, int todoId) async {
+    final result = await deleteTodo(todoId, user);
+    if (result.status == OperationStatus.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${result.message}")),
+      );
+    }
   }
 
-  void _editTask(int index) {
+  void _editTask(BuildContext context, int taskId) {
+    Todo? todo = user.todoList.firstWhere((todo) => todo.todoId == taskId);
+
     _showTaskDialog(
+      context: context,
       title: 'Edit Task',
-      initialTitle: _tasks[index].title,
-      initialDescription: _tasks[index].description,
-      onSave: (newTitle, newDescription) {
-        setState(() {
-          _tasks[index].title = newTitle;
-          _tasks[index].description = newDescription;
-        });
+      initialTitle: todo.title,
+      initialDescription: todo.description,
+      onSave: (newTitle, newDescription) async {
+        todo.title = newTitle;
+        todo.description = newDescription;
+        final result = await updateTodo(todo, user);
+        if (result.status == OperationStatus.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("${result.message}")),
+          );
+        }
       },
     );
   }
 
-  void _addTask() {
+  void _addTask(BuildContext context) {
     _showTaskDialog(
+      context: context,
       title: 'Add New Task',
-      onSave: (newTitle, newDescription) {
-        setState(() {
-          _tasks.add(Task(
-              title: newTitle, description: newDescription, isDone: false));
-        });
+      onSave: (newTitle, newDescription) async {
+        if (user.todoList.length < 3) {
+          // Generate a new unique ID based on the current max ID
+          int newId = user.todoList.isEmpty
+              ? 1
+              : user.todoList.map((todo) => todo.todoId).reduce((a, b) => a > b ? a : b) + 1;
+
+          final newTodo = Todo(
+              id: newId,
+              title: newTitle,
+              description: newDescription);
+
+          final result = await createTodo(newTodo, user);
+          if (result.status == OperationStatus.success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${result.message}")),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Hey! We do only 3 things, remember?")),
+          );
+        }
       },
     );
   }
+
 
   void _showTaskDialog({
+    required BuildContext context,
     required String title,
     String initialTitle = '',
     String initialDescription = '',
@@ -133,42 +155,35 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "DEBUG: Rebuilding TaskListScreen with ${user.todoList.length} tasks");
+
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: _tasks.length,
+            itemCount: user.todoList.length,
             itemBuilder: (context, index) {
               return TaskCard(
-                task: _tasks[index],
-                onToggle: () => _toggleTaskStatus(index),
-                onDelete: () => _deleteTask(index),
-                onEdit: () => _editTask(index),
+                streak: user.streakList.isNotEmpty ? user.streakList[0] : null,
+                task: user.todoList[index],
+                onToggle: () =>
+                    _toggleTaskStatus(context, user.todoList[index].todoId),
+                onDelete: () =>
+                    _deleteTask(context, user.todoList[index].todoId),
+                onEdit: () => _editTask(context, user.todoList[index].todoId),
               );
             },
           ),
         ),
-        if (widget.showFAB) ...[
-          // Show FAB only when showFAB is true
+        if (showFAB) ...[
           SizedBox(height: 10),
           FloatingActionButton(
-            onPressed: _addTask,
+            onPressed: () => _addTask(context),
             child: Icon(Icons.add),
           ),
         ],
       ],
     );
   }
-}
-
-class Task {
-  String title;
-  String description;
-  bool isDone;
-
-  Task({
-    required this.title,
-    required this.description,
-    this.isDone = false,
-  });
 }

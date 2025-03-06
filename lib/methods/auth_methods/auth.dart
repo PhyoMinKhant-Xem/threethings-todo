@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:threethings/methods/database_methods/user_methods.dart';
 import 'package:threethings/objects/app_user.dart';
@@ -5,14 +6,15 @@ import 'package:threethings/utils/auth_response.dart';
 import 'package:threethings/utils/custom_response.dart';
 
 class Auth {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   Future<AuthResponse> signUpUser(
       String email, String password, AppUser user) async {
     AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
 
     try {
-      final credential = await auth.createUserWithEmailAndPassword(
+      final credential = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       final userId = credential.user?.uid;
       if (userId != null) {
@@ -45,12 +47,11 @@ class Auth {
     return response;
   }
 
-  Future<AuthResponse> loginUser(
-      String email, String password, User user) async {
+  Future<AuthResponse> loginUser(String email, String password) async {
     AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
 
     try {
-      final credential = await auth.signInWithEmailAndPassword(
+      final credential = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
 
       if (credential.user != null) {
@@ -65,5 +66,31 @@ class Auth {
       }
     }
     return response;
+  }
+
+  Future<AuthResponse> signOutUser() async {
+    AuthResponse response = AuthResponse.fail("Error Message Not Provided!");
+
+    try {
+      await _auth.signOut();
+
+      response = AuthResponse.success("User Sign out!");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == '') {
+        //TODO: DETERMINE error code with Android Studio here
+        response = AuthResponse.fail("An Error Occured!");
+      }
+    }
+
+    return response;
+  }
+
+  Future<AppUser> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot currentUserSnap =
+    await _firebaseFirestore.collection('users').doc(currentUser!.uid).get();
+
+    return AppUser.fromSnap(currentUserSnap);
   }
 }

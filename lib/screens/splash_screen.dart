@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:threethings/layouts/main_layout.dart';
 
 import 'package:threethings/screens/auth/sign_up_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+  final bool isSignIn;
+
+  SplashScreen({super.key, required this.isSignIn});
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -30,7 +34,9 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SignUpScreen()),
+        MaterialPageRoute(
+          builder: (context) => widget.isSignIn ? MainLayout() : SignUpScreen(),
+        ),
       );
     });
   }

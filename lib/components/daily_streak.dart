@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart';
 class DailyStreakScreen extends StatelessWidget {
   final int streakCount;
 
-  DailyStreakScreen({this.streakCount = 7}); // Default streak count
+  DailyStreakScreen({required this.streakCount}); // Default streak count
 
   @override
   Widget build(BuildContext context) {
