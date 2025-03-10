@@ -1,0 +1,2 @@
+D:/GitHub/others/PMK/threethings-todo/android/app/.cxx/Debug/6h1h641r/x86_64/CMakeFiles/edit_cache.dir
+D:/GitHub/others/PMK/threethings-todo/android/app/.cxx/Debug/6h1h641r/x86_64/CMakeFiles/rebuild_cache.dir

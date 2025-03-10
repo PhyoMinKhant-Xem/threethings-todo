@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'three-things-todo.firebasestorage.app',
     measurementId: 'G-P7XB32TBYE',
   );
+
 }
